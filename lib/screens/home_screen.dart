@@ -1,11 +1,31 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
-class HomeScreen extends StatelessWidget {
+import '../providers/notification_provider.dart';
+import 'notification_screen.dart';
+
+class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
+
+  @override
+  ConsumerState<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends ConsumerState<HomeScreen> {
+  @override
+  void initState() {
+    super.initState();
+
+    Future.microtask(() {
+      ref.read(notificationProvider.notifier).fetchNotifications();
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    ref.watch(notificationProvider);
+    final unreadCount = ref.watch(notificationProvider.notifier).unreadCount;
 
     return Scaffold(
       appBar: AppBar(
@@ -20,8 +40,45 @@ class HomeScreen extends StatelessWidget {
             padding: const EdgeInsets.only(right: 12.0),
             child: IconButton(
               tooltip: 'Notifications',
-              icon: const Icon(Icons.notifications_outlined),
-              onPressed: () {},
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const NotificationScreen(),
+                  ),
+                );
+              },
+              icon: Stack(
+                clipBehavior: Clip.none,
+                children: [
+                  const Icon(Icons.notifications_outlined),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: -6,
+                      top: -6,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        constraints: const BoxConstraints(
+                          minWidth: 18,
+                          minHeight: 18,
+                        ),
+                        child: Text(
+                          unreadCount > 9 ? '9+' : '$unreadCount',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         ],

@@ -20,7 +20,6 @@ class ApiClient {
         },
       ),
     );
-
     dio.interceptors.add(CookieManager(cookieJar));
   }
 }

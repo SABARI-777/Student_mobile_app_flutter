@@ -1,12 +1,22 @@
-import 'package:material_ui/material_ui.dart';
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../core/storage/theme_controller.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/profile_image_picker.dart';
 
-class ProfileScreen extends ConsumerWidget {
+class ProfileScreen extends ConsumerStatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  ConsumerState<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends ConsumerState<ProfileScreen> {
+  File? selectedProfileImage;
 
   Future<void> handleLogout(
     BuildContext context,
@@ -20,7 +30,7 @@ class ProfileScreen extends ConsumerWidget {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
     return ValueListenableBuilder<ThemeMode>(
@@ -72,14 +82,13 @@ class ProfileScreen extends ConsumerWidget {
                                 width: 2,
                               ),
                             ),
-                            child: CircleAvatar(
-                              radius: 46,
-                              backgroundColor: theme.colorScheme.primary.withValues(alpha: 0.1),
-                              child: Icon(
-                                Icons.person_rounded,
-                                size: 48,
-                                color: theme.colorScheme.primary,
-                              ),
+                            child: ProfileImagePicker(
+                              selectedImage: selectedProfileImage,
+                              onImageSelected: (File image) {
+                                setState(() {
+                                  selectedProfileImage = image;
+                                });
+                              },
                             ),
                           ),
                           const SizedBox(height: 16),
